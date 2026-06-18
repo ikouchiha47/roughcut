@@ -11,7 +11,7 @@ metadata:
 
 ## Overview
 
-Kinecut is a Remotion-based engine for building short-form vertical videos (9:16) from a declarative scene spec (TypeScript DSL). You write a spec, preview it live in Remotion Studio, and export.
+Roughcut is a Remotion-based engine for building short-form vertical videos (9:16) from a declarative scene spec (TypeScript DSL). You write a spec, preview it live in Remotion Studio, and export.
 
 Scene types: `text`, `screenshot`, `slideshow`, `chips`, `lockup`.
 
@@ -23,15 +23,18 @@ Built-in overlays: `core:vignette`, `core:film-grain`, `core:lens-flare`, `core:
 flowchart TD
     A(["Start"]) --> B["Stage 1: Collect<br/>Download all assets locally<br/>Write assets.yaml"]
     B --> C["Stage 2: Understand<br/>Ask all 5 brief questions"]
-    C --> D["Stage 3: Propose<br/>Write scene breakdown table"]
+    C --> D["Stage 3: Propose<br/>Output .rcs screenplay(s)"]
     D --> E{"Approved?"}
-    E -- No --> F["Stage 4: Refine<br/>Revise full table"]
+    E -- No --> F["Stage 4: Refine<br/>Revise full screenplay"]
     F --> E
-    E -- Yes --> G["Stage 5: Build<br/>Read scene-types.md<br/>Read scene source files<br/>Write spec.ts"]
-    G --> H["Tell user to check<br/>Remotion Studio"]
-    H --> I{"Done?"}
-    I -- "No, changes needed" --> G
-    I -- Yes --> Z(["Done"])
+    E -- Yes --> G["Stage 5a: Build scenes 1-2<br/>Screenshot preview"]
+    G --> H{"Visual OK?"}
+    H -- No --> G
+    H -- Yes --> I["Stage 5b: Build remaining scenes"]
+    I --> J["Full preview check"]
+    J --> K{"Done?"}
+    K -- "No, changes needed" --> I
+    K -- Yes --> Z(["Done"])
 ```
 
 ## When to Use This Skill
@@ -84,52 +87,112 @@ Do not propose a scene breakdown until you have all five answers. They determine
 
 ---
 
-### 3. Propose Scene Breakdown (Stage 3)
+### 3. Propose Screenplay(s) (Stage 3)
 
-Write a human-readable table. No TypeScript yet.
+Output one or more `.rcs` screenplays — not a table, not TypeScript. The screenplay is the review artifact.
 
-| # | Type | Duration | Content | Notes |
-|---|------|----------|---------|-------|
-| 1 | text | 1.5s | "hook line" / "second line" (accent) | cold open, cuts fast |
-| 2 | screenshot | 3s | profile asset, ken-burns preset, Red Flag pill at 1.2s | establish the app |
-| 3 | chips | 4s | 4 type chips radiate out, stamp at 3s | pattern recognition moment |
-| 4 | lockup | 2.5s | closing hook / app name / tagline | end card |
+Read `references/rcs-format.md` for the full format spec before writing.
 
-Below the table state:
-- Total duration
-- Intended pacing (fast cut / slow drift / mixed)
-- Any assumptions made (e.g. "assumed 30fps")
+**If the user asks for one screenplay**, output it directly:
 
-Stop here. Wait for feedback. Do not write code.
+```
+ROUGHCUT SCREENPLAY v1
+project: my-app
+fps: 30
+dimensions: 1080x1920
+
+--- SCENE 1 ---
+type: text
+duration: 1.5s
+...
+
+TOTAL: 9s
+```
+
+**If the user asks for two or more**, label and separate them:
+
+```
+== SCREENPLAY A: Fast Cut ==
+
+ROUGHCUT SCREENPLAY v1
+...
+
+TOTAL: 8s
+
+---
+
+== SCREENPLAY B: Slow Drift ==
+
+ROUGHCUT SCREENPLAY v1
+...
+
+TOTAL: 13s
+```
+
+Below the screenplay(s) state:
+- Intended pacing per option
+- Any assumptions made (e.g. "assumed 30fps", "used ken-burns as default preset")
+
+Stop here. Wait for the user to pick a screenplay and explicitly approve it. Silence is not approval.
 
 ---
 
 ### 4. Refine (Stage 4 - loop)
 
-Take feedback. Revise the full table and show it again each time - not just changed rows.
+Take feedback. Output the full revised screenplay each time - not just changed scenes.
 
-Keep iterating until the user explicitly approves. "Looks good", "yes", "ship it". Silence is not approval.
+Keep iterating until the user explicitly approves. "Looks good", "yes", "go", "ship it". Silence is not approval.
 
 ---
 
-### 5. Build the Spec (Stage 5)
+### 5a. Build First 1-2 Scenes + Screenshot (Stage 5a)
 
-Only after explicit approval.
+Only after explicit approval of a screenplay.
 
-**Steps:**
-1. Read `references/scene-types.md` - all fields for every scene type
-2. For each scene type you're using, read the corresponding source file in `src/platform/scenes/` (e.g. `TextScene.tsx`, `ScreenshotScene.tsx`, `SlideshowScene.tsx`) — the source is authoritative; docs may be stale
-3. Read `templates/new-spec.ts` - boilerplate structure
-3. Write `src/projects/<project>/specs/<name>.ts`
-4. Add the composition to `src/projects/<project>/index.ts`
-5. Tell the user to run Remotion Studio if not already running:
+1. Read `references/scene-types.md`
+2. Read `references/rcs-format.md`
+3. For each scene type used, read the source in `src/platform/scenes/` — source is authoritative over docs
+4. Read `templates/new-spec.ts`
+5. Write `src/projects/<project>/specs/<name>.ts` with **scenes 1-2 only**
+6. Add the composition to `src/projects/<project>/index.ts`
+7. Ensure Remotion Studio is running:
    ```bash
    npm run preview
    # -> http://localhost:3000
    ```
-6. Ask them to check the preview and report back with feedback
+8. Take a screenshot of the preview using the best available method:
 
-After writing or editing a spec, always tell the user to check Remotion Studio and describe what to change. Edit the spec based on feedback. Repeat until they say done.
+   **Chrome headless** (preferred, if `--chrome` flag passed or `google-chrome`/`chromium` is in PATH):
+   ```bash
+   google-chrome --headless --screenshot=preview.png --window-size=324,576 http://localhost:3000
+   ```
+
+   **macOS** (`screencapture`):
+   ```bash
+   sleep 2 && screencapture -x preview.png
+   ```
+
+   **Linux** (`scrot` or `import`):
+   ```bash
+   sleep 2 && scrot preview.png
+   # or
+   sleep 2 && import -window root preview.png
+   ```
+
+   Show the screenshot to the user. Ask: does this look right? Fix and re-screenshot until they say yes.
+
+---
+
+### 5b. Build Remaining Scenes (Stage 5b)
+
+Only after visual approval of scenes 1-2.
+
+1. Add the remaining scenes to the spec
+2. Screenshot again using the same method as Stage 5a
+3. Ask for final feedback
+4. Repeat until done
+
+After every spec edit, always tell the user what changed and ask them to check the preview.
 
 ---
 
@@ -162,6 +225,7 @@ npm run preview
 | `lockup` | Branding end card - word slam + logo |
 
 Full field reference: `references/scene-types.md`
+Screenplay format: `references/rcs-format.md`
 
 ---
 
@@ -180,7 +244,8 @@ Full field reference: `references/scene-types.md`
 
 | File | What it covers |
 |------|---------------|
-| `references/scene-types.md` | Every SceneSpec variant with all fields |
+| `references/rcs-format.md` | Roughcut Screenplay (.rcs) format - scene types, elements, effects, overlays |
+| `references/scene-types.md` | TypeScript SceneSpec variants with all fields |
 | `references/motion-api.md` | Motion types, compose system, motion registry |
 | `references/effect-api.md` | Effect types, EffectFn signature, registry |
 | `references/preset-api.md` | Preset type, built-in presets, how to add one |
