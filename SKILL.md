@@ -17,6 +17,8 @@ Scene types: `text`, `screenshot`, `slideshow`, `chips`, `lockup`.
 
 Built-in overlays: `core:vignette`, `core:film-grain`, `core:lens-flare`, `core:color-grade`, `core:light-leak`, `core:confetti`.
 
+Full overlay reference: `references/overlay-api.md`.
+
 ## Workflow
 
 ```mermaid

@@ -97,6 +97,28 @@ Colored blob sweeping across the frame.
 }
 ```
 
+### `core:confetti`
+Particle burst — pieces shoot in from edges, top, or corners and fall with gravity.
+
+```ts
+{ type: 'core:confetti',
+  count:    80,       // number of pieces
+  origin:   'sides',  // 'top' | 'sides' | 'corners'
+  colors:   ['#ff4081', '#ffeb3b', '#00bcd4', '#76ff03', '#ff6d00', '#e040fb', '#ffffff'],
+  startAt:  0,        // seconds into scene
+  duration: 2.5,      // seconds the burst lasts
+  gravity:  1.0,      // fall speed multiplier (lower = floatier)
+  spread:   0.8,      // horizontal spread 0–1
+}
+```
+
+Pieces stagger in automatically (up to 0.4s delay). Layout is deterministic — same params = same positions every render.
+
+`origin` controls where pieces enter:
+- `'sides'` — shoot horizontally from left and right edges (default)
+- `'top'` — rain down from top
+- `'corners'` — burst diagonally from top-left and top-right corners
+
 ---
 
 ## Adding a custom overlay

@@ -317,6 +317,7 @@ Fullscreen effects on a scene. Written as shorthand (no `core:` prefix needed in
 | `lens-flare` | `x:<px>` `y:<px>` `color:<hex>` `intensity:<0-1>` `startAt:<s>` `duration:<s>` |
 | `color-grade` | `tint:<hex>` `opacity:<0-1>` `mode:<blend-mode>` `saturation:<0-2>` `contrast:<0-2>` |
 | `light-leak` | `color:<hex>` `opacity:<0-1>` `direction:left\|right\|top\|bottom` `startAt:<s>` `duration:<s>` |
+| `confetti` | `count:<n>` `origin:top\|sides\|corners` `startAt:<s>` `duration:<s>` `gravity:<n>` `spread:<0-1>` |
 
 ---
 
