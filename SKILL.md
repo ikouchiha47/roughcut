@@ -7,7 +7,7 @@ metadata:
     skill-author: ikouchiha47
 ---
 
-# Kinecut Video Engine
+# Roughcut Video Engine
 
 ## Overview
 
@@ -16,6 +16,23 @@ Kinecut is a Remotion-based engine for building short-form vertical videos (9:16
 Scene types: `text`, `screenshot`, `slideshow`, `chips`, `lockup`.
 
 Built-in overlays: `core:vignette`, `core:film-grain`, `core:lens-flare`, `core:color-grade`, `core:light-leak`, `core:confetti`.
+
+## Workflow
+
+```mermaid
+flowchart TD
+    A(["Start"]) --> B["Stage 1: Collect<br/>Download all assets locally<br/>Write assets.yaml"]
+    B --> C["Stage 2: Understand<br/>Ask all 5 brief questions"]
+    C --> D["Stage 3: Propose<br/>Write scene breakdown table"]
+    D --> E{"Approved?"}
+    E -- No --> F["Stage 4: Refine<br/>Revise full table"]
+    F --> E
+    E -- Yes --> G["Stage 5: Build<br/>Read scene-types.md<br/>Read scene source files<br/>Write spec.ts"]
+    G --> H["Tell user to check<br/>Remotion Studio"]
+    H --> I{"Done?"}
+    I -- "No, changes needed" --> G
+    I -- Yes --> Z(["Done"])
+```
 
 ## When to Use This Skill
 
