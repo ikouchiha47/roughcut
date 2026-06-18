@@ -1,5 +1,5 @@
 {
-  "name": "kinecut",
+  "name": "roughcut",
   "version": "1.0.0",
   "scripts": {
     "preview": "node scripts/sync-projects.cjs && remotion preview src/index.ts"

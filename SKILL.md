@@ -1,5 +1,5 @@
 ---
-name: kinecut-video-engine
+name: roughcut-video-engine
 description: Remotion-based short-form vertical video engine. Build videos from a scene DSL - collect assets, propose a scene breakdown, refine, then generate TypeScript specs for Remotion Studio preview and export.
 license: MIT
 compatibility: Requires Node.js, npm install run, and Remotion Studio available via `npm run preview`

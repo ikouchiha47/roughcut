@@ -1,4 +1,4 @@
-# kinecut
+# roughcut
 
 A Remotion-based video engine for building short-form vertical videos from a scene DSL. Write a spec, preview in Remotion Studio, export.
 
