@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "kinecut",
+  "displayName": "Kinecut Video Engine",
+  "version": "0.1.0",
+  "description": "Remotion-based short-form vertical video engine. Build videos from a scene DSL - collect assets, propose scenes, refine, export.",
+  "author": {
+    "name": "ikouchiha47"
+  },
+  "repository": "https://github.com/ikouchiha47/kinecut",
+  "license": "MIT",
+  "keywords": ["video", "remotion", "short-form", "reels", "scene-dsl"]
+}

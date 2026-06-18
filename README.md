@@ -2,15 +2,15 @@
 
 A Remotion-based video engine for building short-form vertical videos from a scene DSL. Write a spec, preview in Remotion Studio, export.
 
-<video src="public/example/demo.mp4" width="324" height="576" autoplay loop muted playsinline></video>
+![demo](public/example/demo.gif)
 
 ---
 
 ## What it is
 
-- **Platform** — generic scene engine: text, screenshot, slideshow, chips, lockup, effects, overlays, presets, motions
-- **Projects** — your videos live in `src/projects/<name>/`, gitignored by default
-- **Example** — a working project in `src/projects/example/` showing all scene types
+- **Platform** - generic scene engine: text, screenshot, slideshow, chips, lockup, effects, overlays, presets, motions
+- **Projects** - your videos live in `src/projects/<name>/`, gitignored by default
+- **Example** - a working project in `src/projects/example/` showing all scene types
 
 ---
 
@@ -27,7 +27,7 @@ node scripts/collect-assets.js \
 
 # Preview
 npm run preview
-# → http://localhost:3000
+# -> http://localhost:3000
 ```
 
 ---
@@ -38,7 +38,7 @@ npm run preview
 2. Add `"<your-project>"` to `projects.json`
 3. Run `npm run preview`
 
-`scripts/sync-projects.js` auto-generates the import glue — you never touch `Root.tsx`.
+`scripts/sync-projects.js` auto-generates the import glue - you never touch `Root.tsx`.
 
 ---
 
@@ -50,7 +50,7 @@ npm run preview
 | `screenshot` | Single image with camera motion + element overlays |
 | `slideshow` | Multiple images with horizontal swipe |
 | `chips` | Elements radiating from center (radiate / radial-spoke) |
-| `lockup` | Branding end card — word slam + logo |
+| `lockup` | Branding end card - word slam + logo |
 
 See `references/scene-types.md` for all fields.
 
@@ -64,12 +64,12 @@ See `references/scene-types.md` for all fields.
 
 ## Workflow
 
-Read `SKILLS.md` — it walks through the full 5-stage workflow (Collect → Understand → Propose → Refine → Build) designed to be driven by an AI agent in Claude Code.
+Read `SKILLS.md` - it walks through the full 5-stage workflow (Collect -> Understand -> Propose -> Refine -> Build) designed to be driven by an AI agent in Claude Code.
 
 ---
 
 ## Stack
 
-- [Remotion](https://remotion.dev) — React-based video renderer
+- [Remotion](https://remotion.dev) - React-based video renderer
 - TypeScript
 - No runtime dependencies beyond Remotion + React
