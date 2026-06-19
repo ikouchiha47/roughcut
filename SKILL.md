@@ -23,9 +23,12 @@ Full overlay reference: `references/overlay-api.md`.
 
 ```mermaid
 flowchart TD
-    A(["Start"]) --> B["Stage 1: Collect<br/>Download all assets locally<br/>Write assets.yaml"]
+    A(["Start"]) --> R["Stage 0: Research<br/>Fetch URLs, screenshot pages<br/>Write research.yaml"]
+    R --> B["Stage 1: Collect<br/>Download all assets locally<br/>Write assets.yaml"]
     B --> C["Stage 2: Understand<br/>Ask all 5 brief questions"]
-    C --> D["Stage 3: Propose<br/>Output .rcs screenplay(s)"]
+    C --> G0{"Anti-fabrication<br/>gate"}
+    G0 -- "Claims not backed" --> C
+    G0 -- "All claims verified" --> D["Stage 3: Propose<br/>Output .rcs screenplay(s)"]
     D --> E{"Approved?"}
     E -- No --> F["Stage 4: Refine<br/>Revise full screenplay"]
     F --> E
@@ -48,11 +51,152 @@ Use this skill when the user wants to:
 - Understand what scene types or fields are available
 - Bootstrap a new project inside `src/projects/`
 
-Trigger phrases: "make a video", "create a video", "add a scene", "build a spec", "collect assets", "preview video", "add preset", "add effect".
+Trigger phrases: "make a video", "create a video", "add a scene", "build a spec", "collect assets", "preview video", "add preset", "add effect", "here's the Play Store link", "research this app", "use this URL".
 
 ---
 
 ## Core Capabilities
+
+### 0. Research (Stage 0)
+
+Run this when the user gives you URLs — Play Store listing, website, landing page, Twitter/X profile, GitHub repo — instead of (or before) handing you assets directly.
+
+**Goal:** build a factual product brief from public sources so Stage 2 questions have real answers, not guesses.
+
+**Steps:**
+
+**Step 1 — Fetch raw content**
+
+For each URL, try a plain fetch first:
+```bash
+curl -sL "<url>" -o research/raw/<key>.html
+```
+
+If the page is JS-heavy (Play Store, SPAs) or you need a visual, screenshot with Chrome headless:
+```bash
+google-chrome --headless \
+  --screenshot=research/<key>.png \
+  --window-size=1280,900 \
+  "<url>"
+```
+If `google-chrome` is not in PATH try `chromium`, `chromium-browser`. If none available, note it and continue — text fetch is enough.
+
+For Play Store URLs, extract from HTML: app name, developer, short description, long description, rating, screenshot `<img>` tags.
+
+Download product screenshots and icon:
+```bash
+node scripts/collect-assets.js --dest public/<project>/research --manifest src/projects/<project>/research.yaml \
+  --name icon --src <icon-url> \
+  --name screen1 --src <screenshot-url-1>
+```
+
+---
+
+**Step 2 — Generate hypothetical brief (HyDE)**
+
+Before writing `research.yaml`, write out what you *believe* is true about the product based on the raw content. Be explicit. Use this format:
+
+```
+HYPOTHETICAL BRIEF:
+- Name: <what you read>
+- Tagline: <what you read>
+- Core feature 1: <claim>
+- Core feature 2: <claim>
+- Target audience: <claim>
+- Pricing: <claim>
+- Platform: <claim>
+```
+
+---
+
+**Step 3 — Validate each claim with a test**
+
+For every claim in the hypothetical brief, run a simple test against the raw content:
+
+| Claim | Test | Result |
+|-------|------|--------|
+| "supports offline mode" | `grep -i "offline" research/raw/<key>.html` | PASS / FAIL |
+| "free tier available" | `grep -i "free\|pricing\|\$0" research/raw/<key>.html` | PASS / FAIL |
+| "available on iOS" | check for App Store link in raw HTML | PASS / FAIL |
+| tagline text | exact string match against `og:title` or `h1` | PASS / FAIL |
+
+For screenshot-only claims (UI features visible in images but not in HTML text), mark as `VISUAL — needs user confirmation`.
+
+---
+
+**Step 4 — Write `research.yaml` with verification status**
+
+```yaml
+source: <url>
+name: <app or product name>
+tagline: <og:title or first h1>
+description: <meta description or first paragraph>
+features:
+  - text: "offline support"
+    verified: true
+    evidence: "found 'offline' in raw HTML line 342"
+  - text: "free tier"
+    verified: false
+    evidence: "no pricing text found in HTML — needs user confirmation"
+assets:
+  icon: public/<project>/research/icon.png
+  screen1: public/<project>/research/screen1.png
+raw: research/raw/<key>.html
+```
+
+---
+
+**Step 5 — Surface unverified claims to user**
+
+Show verified claims as confirmed. For each `verified: false` claim:
+```
+UNVERIFIED: "free tier available"
+  Could not find pricing evidence in the fetched page.
+  a) Confirm this is true
+  b) Correct it: ___
+  c) Remove it
+```
+
+Do not proceed to Stage 1 until all claims are either verified or user-resolved.
+
+Trigger phrases: "here's the Play Store link", "use this URL", "research this app", "look at this website".
+
+---
+
+### 0b. Anti-Fabrication Gate (between Stage 2 and Stage 3)
+
+Before proposing any screenplay, run this checklist. If any item fails, stop and ask the user — do not invent answers.
+
+This gate enforces that the screenplay only contains what Stage 0 verified or the user explicitly confirmed. It is a diff between "what I want to write" and "what I know is true."
+
+**Before writing any screenplay, generate a claim list for it:**
+
+```
+SCREENPLAY CLAIMS:
+- Scene 1 copy: "Track anything, anywhere" → source?
+- Scene 2 feature: offline sync → source?
+- Scene 3 CTA: "Free forever" → source?
+- Assets used: screen1, screen2 → in assets.yaml?
+```
+
+**Then check each claim against `research.yaml`:**
+
+- If `verified: true` in research.yaml → ✓ proceed
+- If user confirmed in Stage 2 → ✓ proceed  
+- If neither → BLOCK and surface:
+
+```
+FABRICATION RISK: Scene 3 copy "Free forever"
+  Not found in research.yaml and not confirmed by user.
+  Options:
+    a) Confirm this is the actual CTA
+    b) Replace with verified copy: "<copy from research>"
+    c) Remove the scene
+```
+
+Do not write the screenplay until every claim has a source. Silence is not confirmation.
+
+---
 
 ### 1. Collect Assets (Stage 1)
 
@@ -235,6 +379,7 @@ Screenplay format: `references/rcs-format.md`
 
 | Command | What it does |
 |---------|-------------|
+| `/research` | Stage 0 - fetch URLs, screenshot pages, write research.yaml |
 | `/collect-assets` | Stage 1 - download/copy assets, write assets.yaml |
 | `/make-video` | Stages 2-5 in one go when assets are already local |
 | `/add-preset` | Register a new named camera/atmosphere preset |
