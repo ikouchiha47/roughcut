@@ -10,7 +10,8 @@ Per-element visual effects. Each file registers one effect into the effect regis
 | `bloom.ts` | `core:bloom` | Glow blob expands + fades behind element |
 | `tap-ring.ts` | `core:tap-ring` | Expanding ring(s) emanate from element center |
 | `typewriter.ts` | `core:typewriter` | Clip-path reveals element left-to-right |
-| `index.ts` | — | Import all four; import this once at entry point |
+| `stagger-in.ts` | `core:stagger-in` | Delayed entrance (fade/scale/slide) for stagger groups |
+| `index.ts` | — | Import all; import this once at entry point |
 
 ## EffectFn contract
 

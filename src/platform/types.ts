@@ -27,6 +27,11 @@ export type ElementSpec = {
   data: unknown;
 };
 
+export type SceneElementStep = {
+  at: number;       // seconds relative to element's at
+  data: unknown;
+};
+
 export type SceneElement = {
   id: string;
   element: string;
@@ -35,7 +40,9 @@ export type SceneElement = {
   w: number;
   h: number;
   at: number;
-  data: unknown;
+  duration?: number;          // seconds; element hides after at + duration
+  data?: unknown;             // static data; ignored when sequence is set
+  sequence?: SceneElementStep[]; // overrides data — active step is whichever at has passed
   effects?: Effect[];
 };
 
@@ -69,6 +76,12 @@ export type Effect =
       speed?: number;
       cursor?: boolean;
       cursorColor?: string;
+    }
+  | {
+      type: 'core:stagger-in';
+      delay: number;
+      enter?: 'fade' | 'slide-up' | 'slide-down' | 'scale';
+      duration?: number;
     };
 
 export type Motion =
@@ -101,12 +114,14 @@ export type SceneSpec =
       lines: TextLine[];
       fontSize?: number;
       transition?: 'cut' | 'fade';
+      elements?: SceneElement[];
+      overlays?: SceneOverlaySpec[];
     }
   | {
       type: 'screenshot';
       duration: number;
       src: string;
-      preset?: string;           // preset id — motion/enter/overlays applied from preset; explicit fields override
+      preset?: string;
       enter?: Motion;
       motion?: Motion | Motion[];
       elements?: SceneElement[];
@@ -120,5 +135,6 @@ export type SceneSpec =
       preset?: string;
       enter?: Motion;
       motion?: Motion | Motion[];
+      elements?: SceneElement[];
       overlays?: SceneOverlaySpec[];
     };

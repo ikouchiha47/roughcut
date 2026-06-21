@@ -295,6 +295,7 @@ Applied to elements via indented `effect:` lines.
   effect: bloom color:#ef4444 delay:0.3s
   effect: tap-ring color:#9d5cff count:5
   effect: typewriter speed:12 cursor:true
+  effect: stagger-in delay:0.08s enter:scale
 ```
 
 | Effect | Params |
@@ -303,6 +304,18 @@ Applied to elements via indented `effect:` lines.
 | `bloom` | `color:<hex>` `delay:<s>` `duration:<s>` `maxScale:<n>` `maxBlur:<px>` `peakAt:<0-1>` |
 | `tap-ring` | `color:<hex>` `count:<n>` `stagger:<s>` `ringDuration:<s>` `maxScale:<n>` `thickness:<px>` |
 | `typewriter` | `unit:char\|word` `speed:<n>` `cursor:true\|false` `cursorColor:<hex>` |
+| `stagger-in` | `delay:<s>` (required) `enter:fade\|scale\|slide-up\|slide-down` `duration:<s>` (default 0.3) |
+
+**Stagger groups** — assign the same `at:` to all shapes and increment `delay` by a fixed interval (e.g. 0.08s) per element. The effect handles hiding the element until its delay has passed.
+
+```
+- circle at:1s pos:100,200 size:40x40
+  effect: stagger-in delay:0s enter:scale
+- pill at:1s pos:220,300 size:60x20
+  effect: stagger-in delay:0.08s enter:scale
+- circle at:1s pos:350,150 size:30x30
+  effect: stagger-in delay:0.16s enter:slide-up
+```
 
 ---
 
